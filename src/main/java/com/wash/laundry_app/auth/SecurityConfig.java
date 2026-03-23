@@ -60,19 +60,23 @@ public class SecurityConfig {
                 .sessionManagement(c ->
                         c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
-              .authorizeHttpRequests(c->c
-    .requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
-    .requestMatchers(HttpMethod.POST,"/auth/logout").permitAll()
-    .requestMatchers(HttpMethod.POST,"/auth/refresh").permitAll()
-    .requestMatchers(HttpMethod.POST,"/auth/setup-admin").permitAll()
-    .requestMatchers("/uploads/**").permitAll()
-    .requestMatchers("/actuator/**").permitAll()
-    .requestMatchers("/admin/**", "/api/admin/**").hasAnyRole("admin", "ADMIN")
-    .requestMatchers("/livreur/**", "/api/livreur/**").hasAnyRole("livreur", "LIVREUR", "admin", "ADMIN")
-    .requestMatchers("/employe/**", "/api/employe/**").hasAnyRole("employe", "EMPLOYE", "admin", "ADMIN")
-    .requestMatchers("/api/payment-types").authenticated()
-    .anyRequest().authenticated()
-)
+                .authorizeHttpRequests(c->c
+
+                                .requestMatchers("/admin/**", "/api/admin/**").permitAll()
+                                .requestMatchers("/livreur/**", "/api/livreur/**").hasAnyRole("livreur", "LIVREUR", "admin", "ADMIN")
+                                .requestMatchers("/employe/**", "/api/employe/**").hasAnyRole("employe", "EMPLOYE", "admin", "ADMIN")
+                                .requestMatchers("/api/payment-types").authenticated()
+
+                                .requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
+                                .requestMatchers(HttpMethod.POST,"/auth/logout").permitAll()
+                                .requestMatchers(HttpMethod.POST,"/auth/refresh").permitAll()
+                                .requestMatchers(HttpMethod.POST,"/auth/setup-admin").permitAll()
+                                .requestMatchers("/uploads/**").permitAll()
+                                .requestMatchers("/actuator/**").permitAll()
+
+
+                                .anyRequest().authenticated()
+                )
                 .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(c->
