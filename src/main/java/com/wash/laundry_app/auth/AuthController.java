@@ -1,5 +1,7 @@
 package com.wash.laundry_app.auth;
 
+import com.wash.laundry_app.users.Role;
+import com.wash.laundry_app.users.User;
 import com.wash.laundry_app.users.UserMapper;
 import com.wash.laundry_app.users.UserRepository;
 import jakarta.servlet.http.Cookie;
@@ -12,8 +14,10 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import java.time.Duration;
+import java.util.Map;
 
 @RestController
 @AllArgsConstructor
@@ -26,6 +30,7 @@ public class AuthController {
     private final JwtConfig jwtConfig;
     private final AuthService authService;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> Login(@Valid @RequestBody LoginRequest request , HttpServletResponse response){
@@ -59,6 +64,34 @@ public class AuthController {
         refreshTokenRepository.save(rt);
 
         return ResponseEntity.ok(new JwtResponse(accessTocken.toString()));
+    }
+
+    @PostMapping("/setup-admin")
+    public ResponseEntity<?> setupAdmin() {
+        if (userRepository.existsByRole(Role.admin)) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of(
+                            "message", "Admin already exists. This endpoint is disabled.",
+                            "status", "BLOCKED"
+                    ));
+        }
+
+        User admin = new User();
+        admin.setName("jalal sadiki");
+        admin.setEmail("jalal@gmail.com");
+        admin.setPassword(passwordEncoder.encode("jalal123"));
+        admin.setRole(Role.admin);
+        admin.setIsActive(true);
+
+        userRepository.save(admin);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Admin created successfully!",
+                "email", "jalal@gmail.com",
+                "password", "jalal123",
+                "warning", "DELETE this endpoint now!"
+        ));
     }
 
     @PostMapping("/refresh")

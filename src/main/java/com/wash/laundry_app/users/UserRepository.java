@@ -13,6 +13,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
    Optional<Boolean> existsByEmail(String email);
 
+   boolean existsByRole(Role role);
+
    @Query("SELECT u FROM User u WHERE u.isActive = true AND u.role != com.wash.laundry_app.users.Role.admin")
    List<User> findAllActive();
 
